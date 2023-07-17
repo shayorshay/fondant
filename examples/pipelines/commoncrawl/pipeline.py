@@ -21,7 +21,7 @@ load_from_commoncrawl_op = ComponentOp(
     component_spec_path="components/load_from_commoncrawl/fondant_component.yaml",
     arguments={
         "index_name": "CC-MAIN-2023-14",
-        "n_segments_to_load": 1,
+        "n_segments_to_load": 2,
     },
 )
 
