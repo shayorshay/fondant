@@ -17,6 +17,10 @@ produces:
         type: binary
 
 args:
+  get_plain_text:
+    description: Whether to extract plain text from the HTML.
+    type: bool
+    default: 'False'
   n_records_to_download:
     description: Number of records to download from the commoncrawl segment file. Useful for small-scale testing.
     type: int
