@@ -58,6 +58,8 @@ class ExtractImageLicenses(PandasTransformComponent):
         Returns:
             A pandas dataframe with the image url and license metadata.
         """
+        logger.info("Extracting image licenses...")
+        logger.info(df.head())
         df = (
             df.apply(
                 lambda row: get_image_info_from_webpage(
@@ -69,8 +71,11 @@ class ExtractImageLicenses(PandasTransformComponent):
             .explode(0)
             .apply(pd.Series)
         )
+        logger.info("Extracted image licenses.")
+        logger.info(f"len(df): {len(df)}")
+        logger.info(df.head())
 
-        df = df.dropna().reset_index(drop=True)
+        df = df.dropna()
 
         df.columns = [
             ("image", "image_url"),
