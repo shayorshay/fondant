@@ -38,10 +38,7 @@ def get_image_info_from_webpage(webpage_url: str, webpage_html: str) -> List[str
                     images = get_images_from_soup(
                         soup, webpage_url, license_type, license_location
                     )
-                    logger.info(f"Found {len(images)} images.")
-
                     unique_images = get_unique_images(images)
-                    logger.info(f"Found {len(unique_images)} unique images.")
 
                     return unique_images
 
@@ -58,8 +55,6 @@ class ExtractImageLicenses(PandasTransformComponent):
         Returns:
             A pandas dataframe with the image url and license metadata.
         """
-        logger.info("Extracting image licenses...")
-        logger.info(df.head())
         df = (
             df.apply(
                 lambda row: get_image_info_from_webpage(
@@ -71,9 +66,6 @@ class ExtractImageLicenses(PandasTransformComponent):
             .explode(0)
             .apply(pd.Series)
         )
-        logger.info("Extracted image licenses.")
-        logger.info(f"len(df): {len(df)}")
-        logger.info(df.head())
 
         df = df.dropna()
 

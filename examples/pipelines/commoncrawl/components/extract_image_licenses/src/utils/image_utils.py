@@ -64,8 +64,6 @@ def get_images_from_soup(
         img_info = get_image_info(a_tag, webpage_url, license_type, license_location)
         if img_info:
             image_info.append(img_info)
-
-    logger.info(f"Found {len(image_info)} images.")
     return image_info
 
 

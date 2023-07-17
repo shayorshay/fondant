@@ -48,7 +48,6 @@ def get_license_type_from_creative_commons_url(license_url: str) -> str:
         The license type.
     """
     license_split = urlparse(license_url).path.split("/")
-    logger.info(f"license_split: {license_split}")
 
     if "publicdomain" in license_split:
         return "public domain"
