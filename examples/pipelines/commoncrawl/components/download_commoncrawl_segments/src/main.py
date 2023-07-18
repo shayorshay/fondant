@@ -1,85 +1,36 @@
 import os
-import time
 import logging
 from typing import List, Optional
 
-import io
-import boto3
-from bs4 import BeautifulSoup
-
-import dask.bag as db
 import dask.dataframe as dd
 import pandas as pd
 
-import requests
-from requests import RequestException, ConnectionError
+import gzip
 from warcio.archiveiterator import ArchiveIterator
 
 from fondant.component import DaskTransformComponent
+from utils.text_utils import convert_to_plain_text
+from utils.download_utils import get_warc_file_using_boto3, get_warc_file_using_requests
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = "https://data.commoncrawl.org/"
 
-
-def convert_to_plain_text(content: str) -> str:
-    """Converts HTML content to plain text.
+def get_records(file, get_plain_text, n_records_to_download) -> List[List[str]]:
+    """Extracts records from a WARC file, optionally converting HTML to plain text.
     Args:
-        content: The HTML content to convert.
+        file: The WARC file.
+        get_plain_text: Whether to convert HTML to plain text.
+        n_records_to_download: The number of records to download.
     Returns:
-        The converted plain text.
+        A list of webpage records, where each record is a url and content.
     """
-    try:
-        soup = BeautifulSoup(content, "html.parser")
-        return soup.get_text()
-    except Exception as e:
-        logger.error(f"Error parsing HTML: {e}")
-        return None
-
-
-def get_warc_file_with_retry(warc_file: str, retries: int) -> requests.Response:
-    retry = 0
-    retry_delay = 5
-
-    while retry < retries:
-        try:
-            response = requests.get(BASE_URL + warc_file, stream=True)
-            response.raise_for_status()
-            return response
-        except (RequestException, ConnectionError) as e:
-            logger.error(f"Error downloading WARC file: {e}")
-            logger.error(f"Retrying... {retry}/{retries}")
-            time.sleep(retry_delay)
-            retry += 1
-    raise Exception(f"Failed to download WARC file after multiple retries: {warc_file}")
-
-
-def get_records_from_warc_file(
-    warc_file: str,
-    get_plain_text: Optional[bool] = False,
-    n_records_to_download: Optional[int] = None,
-) -> List[List[str]]:
-    """Downloads a WARC file and extracts the webpages.
-    Args:
-        warc_file: The path to the WARC file.
-        get_plain_text: Whether to convert the HTML content to plain text.
-        n_records_to_download: The number of webpages to download from the WARC file.
-    Returns:
-        A list of webpages.
-    """
-    logger.info(f"Processing WARC file from segment path: {warc_file}...")
     records = []
     counter = 0
-    response = get_warc_file_with_retry(warc_file)
 
-    for record in ArchiveIterator(response.raw, arc2warc=True):
+    for record in ArchiveIterator(file, arc2warc=True):
         if record.rec_type == "response":
             url = record.rec_headers.get_header("WARC-Target-URI")
-            content = (
-                record.content_stream()
-                .read()
-                .decode(errors="replace", encoding="utf-8")
-            )
+            content = record.content_stream().read().decode("utf-8", "replace")
             if get_plain_text:
                 content = convert_to_plain_text(content)
             records.append([url, content])
@@ -91,10 +42,37 @@ def get_records_from_warc_file(
     return records
 
 
+def get_records_from_warc_file(
+    warc_file: str,
+    use_s3: Optional[bool] = False,
+    get_plain_text: Optional[bool] = False,
+    n_records_to_download: Optional[int] = None,
+) -> List[List[str]]:
+    """Downloads a WARC file and extracts the webpages.
+    Args:
+        warc_file: The path to the WARC file.
+        use_s3: Whether to download the WARC file from S3 or from the Commoncrawl API.
+        get_plain_text: Whether to convert the HTML content to plain text.
+        n_records_to_download: The number of webpages to download from the WARC file.
+    Returns:
+        A list of webpages.
+    """
+    logger.info(f"Processing WARC file from segment path: {warc_file}...")
+
+    if use_s3:
+        response = get_warc_file_using_boto3(warc_file)
+        with gzip.GzipFile(fileobj=response, mode="rb") as file:
+            return get_records(file, get_plain_text, n_records_to_download)
+    else:
+        response = get_warc_file_using_requests(warc_file)
+        return get_records(response.raw, get_plain_text, n_records_to_download)
+
+
 class DownloadCommoncrawlSegments(DaskTransformComponent):
     def transform(
         self,
         df: dd.DataFrame,
+        use_s3: Optional[bool] = False,
         get_plain_text: Optional[bool] = False,
         n_records_to_download: Optional[int] = None,
         partition_size: Optional[int] = None,
@@ -102,6 +80,7 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         """Downloads Commoncrawl segments based on a list of WARC paths.
         Args:
             df: A Dask DataFrame containing a column of WARC paths.
+            use_s3: Whether to download the WARC files from S3 or from the Commoncrawl API.
             get_plain_text: Whether to convert the HTML content to plain text.
             n_records_to_download: The number of webpages to download from each segment.
         Returns:
@@ -116,7 +95,7 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         df = (
             df.apply(
                 lambda row: get_records_from_warc_file(
-                    row["segment_path"], get_plain_text, n_records_to_download
+                    row["segment_path"], use_s3, get_plain_text, n_records_to_download
                 ),
                 axis=1,
                 meta=("object"),
