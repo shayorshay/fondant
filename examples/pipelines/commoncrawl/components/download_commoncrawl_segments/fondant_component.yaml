@@ -14,7 +14,7 @@ produces:
       url:
         type: string
       html:
-        type: binary
+        type: string
 
 args:
   get_plain_text:
@@ -23,5 +23,9 @@ args:
     default: 'False'
   n_records_to_download:
     description: Number of records to download from the commoncrawl segment file. Useful for small-scale testing.
+    type: int
+    default: None
+  partition_size:
+    description: Partition size for dataframe in megabytes(MB).
     type: int
     default: None
