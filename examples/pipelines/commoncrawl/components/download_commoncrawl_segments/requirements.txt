@@ -4,3 +4,4 @@ git+https://github.com/ml6team/fondant@main
 warcio==1.7.4
 requests==2.31.0
 graphviz
+s3fs
