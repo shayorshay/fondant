@@ -10,8 +10,8 @@ from fondant.pipeline import ComponentOp, Pipeline
 logger = logging.getLogger(__name__)
 
 # initialize pipeline
-my_pipeline = Pipeline(
-    pipeline_name="my_pipeline",
+commoncrawl_pipeline = Pipeline(
+    pipeline_name="commoncrawl_pipeline",
     base_path="/Users/sharongrundmann/Projects/forum-work/fondant/fondant_artifacts",
     pipeline_description="A pipeline for downloading Common crawl files.",
 )
@@ -28,7 +28,7 @@ load_from_commoncrawl_op = ComponentOp(
 download_commoncrawl_segments_op = ComponentOp(
     component_spec_path="components/download_commoncrawl_segments/fondant_component.yaml",
     arguments={
-        "n_records_to_download": 1,
+        "n_records_to_download": 100,
         "partition_size": 250,
     },
 )
@@ -38,10 +38,10 @@ extract_image_licenses = ComponentOp(
 )
 
 # add ops to pipeline
-my_pipeline.add_op(load_from_commoncrawl_op)
-my_pipeline.add_op(
+commoncrawl_pipeline.add_op(load_from_commoncrawl_op)
+commoncrawl_pipeline.add_op(
     download_commoncrawl_segments_op, dependencies=load_from_commoncrawl_op
 )
-my_pipeline.add_op(
+commoncrawl_pipeline.add_op(
     extract_image_licenses, dependencies=download_commoncrawl_segments_op
 )
