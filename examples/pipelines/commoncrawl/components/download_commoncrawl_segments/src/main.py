@@ -9,6 +9,8 @@ import gzip
 from warcio.archiveiterator import ArchiveIterator
 
 from fondant.component import DaskTransformComponent
+from fondant.executor import DaskTransformExecutor
+
 from utils.text_utils import convert_to_plain_text
 from utils.download_utils import get_warc_file_using_boto3, get_warc_file_using_requests
 
@@ -69,33 +71,48 @@ def get_records_from_warc_file(
 
 
 class DownloadCommoncrawlSegments(DaskTransformComponent):
-    def transform(
+    def __init__(
         self,
-        df: dd.DataFrame,
+        *_,
         use_s3: Optional[bool] = False,
         get_plain_text: Optional[bool] = False,
         n_records_to_download: Optional[int] = None,
         partition_size: Optional[int] = None,
-    ) -> dd.DataFrame:
+    ):
         """Downloads Commoncrawl segments based on a list of WARC paths.
         Args:
-            df: A Dask DataFrame containing a column of WARC paths.
             use_s3: Whether to download the WARC files from S3 or from the Commoncrawl API.
             get_plain_text: Whether to convert the HTML content to plain text.
             n_records_to_download: The number of webpages to download from each segment.
+        """
+        self.use_s3 = use_s3
+        self.get_plain_text = get_plain_text
+        self.n_records_to_download = n_records_to_download
+        self.partition_size = partition_size
+
+    def transform(
+        self,
+        dataframe: dd.DataFrame,
+    ) -> dd.DataFrame:
+        """Downloads Commoncrawl segments based on a list of WARC paths.
+        Args:
+            dataframe: A Dask DataFrame containing a column of WARC paths.
         Returns:
             A Dask DataFrame containing the downloaded webpages.
         """
-        n_partitions = df.npartitions
+        n_partitions = dataframe.npartitions
         n_workers = os.cpu_count()
 
         if n_partitions < n_workers:
-            df = df.repartition(npartitions=n_workers)
+            dataframe = dataframe.repartition(npartitions=n_workers)
 
-        df = (
-            df.apply(
+        dataframe = (
+            dataframe.apply(
                 lambda row: get_records_from_warc_file(
-                    row["segment_path"], use_s3, get_plain_text, n_records_to_download
+                    row["segment_path"],
+                    self.use_s3,
+                    self.get_plain_text,
+                    self.n_records_to_download,
                 ),
                 axis=1,
                 meta=("object"),
@@ -104,19 +121,19 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
             .apply(pd.Series, meta={0: "object", 1: "object"})
         )
 
-        df.columns = [
+        dataframe.columns = [
             "webpage_url",
             "webpage_html",
         ]
 
-        if partition_size:
-            df = df.repartition(partition_size=f"{partition_size}MB")
+        if self.partition_size:
+            dataframe = dataframe.repartition(partition_size=f"{self.partition_size}MB")
 
-        df = df.reset_index(drop=True)
+        dataframe = dataframe.reset_index(drop=True)
 
-        return df
+        return dataframe
 
 
 if __name__ == "__main__":
-    component = DownloadCommoncrawlSegments.from_args()
-    component.run()
+    executor = DaskTransformExecutor.from_args()
+    executor.execute(DownloadCommoncrawlSegments)

@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from typing import List
 
 from fondant.component import PandasTransformComponent
+from fondant.executor import PandasTransformExecutor
 
 from utils.license_utils import get_license_type, get_license_location
 from utils.image_utils import get_images_from_soup, get_unique_images
@@ -48,15 +49,18 @@ def get_image_info_from_webpage(webpage_url: str, webpage_html: str) -> List[str
 
 
 class ExtractImageLicenses(PandasTransformComponent):
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __init__(self, *args):
+        pass
+
+    def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         """Extracts image url and license from the HTML content.
         Args:
-            df: A pandas dataframe with the webpage url and html content.
+            dataframe: A pandas dataframe with the webpage url and html content.
         Returns:
             A pandas dataframe with the image url and license metadata.
         """
-        df = (
-            df.apply(
+        dataframe = (
+            dataframe.apply(
                 lambda row: get_image_info_from_webpage(
                     row[("webpage", "url")], row[("webpage", "html")]
                 ),
@@ -67,9 +71,9 @@ class ExtractImageLicenses(PandasTransformComponent):
             .apply(pd.Series)
         )
 
-        df = df.dropna()
+        dataframe = dataframe.dropna()
 
-        df.columns = [
+        dataframe.columns = [
             ("image", "image_url"),
             ("image", "alt_text"),
             ("image", "webpage_url"),
@@ -77,9 +81,9 @@ class ExtractImageLicenses(PandasTransformComponent):
             ("image", "license_location"),
         ]
 
-        return df
+        return dataframe
 
 
 if __name__ == "__main__":
-    component = ExtractImageLicenses.from_args()
-    component.run()
+    executor = PandasTransformExecutor.from_args()
+    executor.execute(ExtractImageLicenses)
