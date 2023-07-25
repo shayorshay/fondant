@@ -1,7 +1,7 @@
 name: Download commoncrawl segment files
 description: Component that downloads commoncrawl segment files based on WARC paths
 # image: ghcr.io/ml6team/download_commoncrawl_segments:latest
-image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/download_commoncrawl_segments:latest
+image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/download_commoncrawl_segments:dev
 
 consumes:
   segment:
@@ -30,7 +30,7 @@ args:
     description: Number of records to download from the commoncrawl segment file. Useful for small-scale testing.
     type: int
     default: None
-  partition_size:
-    description: Partition size for dataframe in megabytes(MB).
-    type: int
-    default: None
+  # partition_size:
+  #   description: Partition size for dataframe in megabytes(MB).
+  #   type: int
+  #   default: None

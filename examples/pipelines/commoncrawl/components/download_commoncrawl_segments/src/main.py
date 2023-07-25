@@ -3,6 +3,7 @@ import logging
 from typing import List, Optional
 
 import dask.dataframe as dd
+import dask.delayed as delayed
 import pandas as pd
 
 import gzip
@@ -77,7 +78,6 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         use_s3: Optional[bool] = False,
         get_plain_text: Optional[bool] = False,
         n_records_to_download: Optional[int] = None,
-        partition_size: Optional[int] = None,
     ):
         """Downloads Commoncrawl segments based on a list of WARC paths.
         Args:
@@ -88,7 +88,6 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         self.use_s3 = use_s3
         self.get_plain_text = get_plain_text
         self.n_records_to_download = n_records_to_download
-        self.partition_size = partition_size
 
     def transform(
         self,
@@ -100,38 +99,31 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         Returns:
             A Dask DataFrame containing the downloaded webpages.
         """
-        n_partitions = dataframe.npartitions
-        n_workers = os.cpu_count()
 
-        if n_partitions < n_workers:
-            dataframe = dataframe.repartition(npartitions=n_workers)
+        segment_paths = dataframe["segment_path"].to_bag()
 
-        dataframe = (
-            dataframe.apply(
-                lambda row: get_records_from_warc_file(
-                    row["segment_path"],
-                    self.use_s3,
-                    self.get_plain_text,
-                    self.n_records_to_download,
-                ),
-                axis=1,
-                meta=("object"),
-            )
-            .explode()
-            .apply(pd.Series, meta={0: "object", 1: "object"})
+        records = segment_paths.map(
+            get_records_from_warc_file,
+            use_s3=self.use_s3,
+            get_plain_text=self.get_plain_text,
+            n_records_to_download=self.n_records_to_download,
         )
 
-        dataframe.columns = [
-            "webpage_url",
-            "webpage_html",
-        ]
+        flattened_records = records.flatten()
+        flattened_records.visualize(filename="records.png")
 
-        if self.partition_size:
-            dataframe = dataframe.repartition(partition_size=f"{self.partition_size}MB")
+        dask_df = flattened_records.to_dataframe(
+            columns=["webpage_url", "webpage_html"]
+        )
+        dask_df = dask_df.repartition(partition_size="250MB")
 
-        dataframe = dataframe.reset_index(drop=True)
+        logger.info(f"Downloaded {len(dask_df)} webpages from Commoncrawl.")
+        logger.info(dask_df)
+        logger.info(dask_df.head())
 
-        return dataframe
+        dask_df.visualize(filename="df.png")
+
+        return dask_df
 
 
 if __name__ == "__main__":
