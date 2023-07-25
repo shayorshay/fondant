@@ -17,3 +17,7 @@ args:
     description: Number of segments to load from the commoncrawl index file
     type: int
     default: None
+  offset:
+    description: Offset to start loading segments from the commoncrawl index file
+    type: int
+    default: 0
