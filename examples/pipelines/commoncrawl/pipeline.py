@@ -21,15 +21,17 @@ load_from_commoncrawl_op = ComponentOp(
     component_spec_path="components/load_from_commoncrawl/fondant_component.yaml",
     arguments={
         "index_name": "CC-MAIN-2023-14",
-        "n_segments_to_load": 1,
+        "n_segments_to_load": 10,
+        "offset": 3,
     },
 )
 
 download_commoncrawl_segments_op = ComponentOp(
     component_spec_path="components/download_commoncrawl_segments/fondant_component.yaml",
     arguments={
-        "n_records_to_download": 100,
-        "partition_size": 250,
+        "n_records_to_download": 10,
+        # "partition_size": 250,
+        # "chunk_size": 20,
     },
 )
 
