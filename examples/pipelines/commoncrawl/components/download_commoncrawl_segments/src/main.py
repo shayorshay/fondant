@@ -12,7 +12,10 @@ from warcio.archiveiterator import ArchiveIterator
 from fondant.component import DaskTransformComponent
 from fondant.executor import DaskTransformExecutor
 
-from utils.text_utils import convert_to_plain_text
+from utils.text_utils import (
+    convert_to_plaint_text_using_bs4,
+    convert_to_plain_text_using_html_text,
+)
 from utils.download_utils import get_warc_file_using_boto3, get_warc_file_using_requests
 
 logger = logging.getLogger(__name__)
@@ -35,7 +38,8 @@ def get_records(file, get_plain_text, n_records_to_download) -> List[List[str]]:
             url = record.rec_headers.get_header("WARC-Target-URI")
             content = record.content_stream().read().decode("utf-8", "replace")
             if get_plain_text:
-                content = convert_to_plain_text(content)
+                # content = convert_to_plaint_text_using_bs4(content)
+                content = convert_to_plain_text_using_html_text(content)
             records.append([url, content])
             counter += 1
 
@@ -100,6 +104,9 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
             A Dask DataFrame containing the downloaded webpages.
         """
 
+        dataframe = dataframe.repartition(
+            npartitions=1
+        )  # TODO: bugfix, remove this line
         segment_paths = dataframe["segment_path"].to_bag()
 
         records = segment_paths.map(
@@ -110,18 +117,18 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         )
 
         flattened_records = records.flatten()
-        flattened_records.visualize(filename="records.png")
+        meta = {"url": "object", "content": "object"}
 
         dask_df = flattened_records.to_dataframe(
-            columns=["webpage_url", "webpage_html"]
+            meta=meta,
         )
-        dask_df = dask_df.repartition(partition_size="250MB")
+        dask_df = dask_df.rename(
+            columns={"url": "webpage_url", "content": "webpage_html"}
+        )
 
         logger.info(f"Downloaded {len(dask_df)} webpages from Commoncrawl.")
         logger.info(dask_df)
         logger.info(dask_df.head())
-
-        dask_df.visualize(filename="df.png")
 
         return dask_df
 
