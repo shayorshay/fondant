@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # initialize pipeline
 pipeline = Pipeline(
-    pipeline_name="commoncrawl-pipeline-use-s3-for-downloads",
+    pipeline_name="commoncrawl-pipeline",
     base_path=PipelineConfigs.BASE_PATH,
     pipeline_description="A pipeline for downloading Common crawl files.",
 )
@@ -25,7 +25,7 @@ load_from_commoncrawl_op = ComponentOp(
     component_spec_path="components/load_from_commoncrawl/fondant_component.yaml",
     arguments={
         "index_name": "CC-MAIN-2023-14",
-        "n_segments_to_load": 3,
+        "n_segments_to_load": 1,
         # "offset": 3
     },
 )
@@ -34,7 +34,6 @@ download_commoncrawl_segments_op = ComponentOp(
     component_spec_path="components/download_commoncrawl_segments/fondant_component.yaml",
     arguments={
         "n_records_to_download": 10000,
-        # "partition_size": 250,
         "use_s3": True,
     },
 )
