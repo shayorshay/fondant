@@ -7,8 +7,6 @@ RUN apt-get update && \
     apt-get install -y gcc && \
     apt-get install -y graphviz
 
-# RUN apt-get update -y && apt-get install -y gcc
-
 # install requirements
 COPY requirements.txt /
 RUN pip3 install --no-cache-dir -r requirements.txt
