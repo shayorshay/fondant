@@ -1,7 +1,7 @@
 name: Download commoncrawl segment files
 description: Component that downloads commoncrawl segment files based on WARC paths
 # image: ghcr.io/ml6team/download_commoncrawl_segments:latest
-image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/download_commoncrawl_segments:latest
+image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/download_commoncrawl_segments:dev
 
 consumes:
   segment:

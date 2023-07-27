@@ -1,7 +1,7 @@
 name: Load index file from commoncrawl
 description: Component that loads a given index file from commoncrawl
 # image: ghcr.io/ml6team/load_from_commoncrawl:latest
-image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/load_from_commoncrawl:latest
+image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/load_from_commoncrawl:dev
 
 produces:
   segment:
