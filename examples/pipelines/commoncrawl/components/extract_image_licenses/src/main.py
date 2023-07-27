@@ -81,6 +81,8 @@ class ExtractImageLicenses(PandasTransformComponent):
             ("image", "license_location"),
         ]
 
+        logger.info(f"Extracted {len(dataframe)} images")
+
         return dataframe
 
 

@@ -99,7 +99,6 @@ class LoadFromCommonCrawlComponent(DaskLoadComponent):
         )
 
         logger.info(f"Loaded {len(warc_paths_df)} segment file paths.")
-        logger.info(warc_paths_df.head())
 
         return warc_paths_df
 
