@@ -105,10 +105,6 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         Returns:
             A Dask DataFrame containing the downloaded webpages.
         """
-
-        dataframe = dataframe.repartition(
-            npartitions=1
-        )  # TODO: bugfix, remove this line
         segment_paths = dataframe["segment_path"].to_bag()
 
         records = segment_paths.map(

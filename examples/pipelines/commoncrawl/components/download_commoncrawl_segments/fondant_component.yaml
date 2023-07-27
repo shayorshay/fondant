@@ -30,7 +30,11 @@ args:
     description: Number of records to download from the commoncrawl segment file. Useful for small-scale testing.
     type: int
     default: None
-  # partition_size:
-  #   description: Partition size for dataframe in megabytes(MB).
-  #   type: int
-  #   default: None
+  retries:
+    description: Number of retries when downloading the commoncrawl segment file. Only used when use_s3 is set to False.
+    type: int
+    default: 3
+  backoff_factor:
+    description: Backoff factor when retrying to download the commoncrawl segment file. Only used when use_s3 is set to False.
+    type: float
+    default: 5
