@@ -22,7 +22,7 @@ client = Client(host=PipelineConfigs.HOST)
 
 # define ops
 load_from_commoncrawl_op = ComponentOp(
-    component_spec_path="components/load_from_commoncrawl/fondant_component.yaml",
+    component_dir="components/load_from_commoncrawl",
     arguments={
         "index_name": "CC-MAIN-2023-14",
         "n_segments_to_load": 1,
@@ -31,15 +31,15 @@ load_from_commoncrawl_op = ComponentOp(
 )
 
 download_commoncrawl_segments_op = ComponentOp(
-    component_spec_path="components/download_commoncrawl_segments/fondant_component.yaml",
+    component_dir="components/download_commoncrawl_segments",
     arguments={
-        "n_records_to_download": 10000,
+        "n_records_to_download": 100,
         "use_s3": True,
     },
 )
 
 extract_image_licenses = ComponentOp(
-    component_spec_path="components/extract_image_licenses/fondant_component.yaml",
+    component_dir="components/extract_image_licenses",
 )
 
 # add ops to pipeline
