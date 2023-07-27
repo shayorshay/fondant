@@ -50,6 +50,8 @@ def get_records_from_warc_file(
     use_s3: Optional[bool] = False,
     get_plain_text: Optional[bool] = False,
     n_records_to_download: Optional[int] = None,
+    retries: Optional[int] = None,
+    backoff_factor: Optional[int] = None,
 ) -> List[List[str]]:
     """Downloads a WARC file and extracts the webpages.
     Args:
@@ -67,7 +69,7 @@ def get_records_from_warc_file(
         with gzip.GzipFile(fileobj=response, mode="rb") as file:
             return get_records(file, get_plain_text, n_records_to_download)
     else:
-        response = get_warc_file_using_requests(warc_file)
+        response = get_warc_file_using_requests(warc_file, retries, backoff_factor)
         return get_records(response.raw, get_plain_text, n_records_to_download)
 
 
@@ -78,6 +80,8 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         use_s3: Optional[bool] = False,
         get_plain_text: Optional[bool] = False,
         n_records_to_download: Optional[int] = None,
+        retries: Optional[int] = None,
+        backoff_factor: Optional[float] = None,
     ):
         """Downloads Commoncrawl segments based on a list of WARC paths.
         Args:
@@ -88,6 +92,8 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         self.use_s3 = use_s3
         self.get_plain_text = get_plain_text
         self.n_records_to_download = n_records_to_download
+        self.retries = retries
+        self.backoff_factor = backoff_factor
 
     def transform(
         self,
@@ -110,6 +116,8 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
             use_s3=self.use_s3,
             get_plain_text=self.get_plain_text,
             n_records_to_download=self.n_records_to_download,
+            retries=self.retries,
+            backoff_factor=self.backoff_factor,
         )
 
         flattened_records = records.flatten()
