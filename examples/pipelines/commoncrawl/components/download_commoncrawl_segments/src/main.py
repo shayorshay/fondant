@@ -127,7 +127,6 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
         )
 
         logger.info(f"Downloaded {len(dask_df)} webpages from Commoncrawl.")
-
         return dask_df
 
 

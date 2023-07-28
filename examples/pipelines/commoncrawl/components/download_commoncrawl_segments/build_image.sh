@@ -16,11 +16,11 @@
 # Set some variables
 ARTIFACT_PATH="050243278346.dkr.ecr.us-east-1.amazonaws.com"
 IMAGE_NAME="download_commoncrawl_segments"
-IMAGE_TAG="dev"
+IMAGE_TAG="latest"
 
 # Create full name of the image
 FULL_IMAGE_NAME=${ARTIFACT_PATH}/${IMAGE_NAME}:${IMAGE_TAG}
 echo $FULL_IMAGE_NAME
 
 # Build the image
-docker build --push -t $FULL_IMAGE_NAME --build-arg="FONDANT_VERSION=main" .
+docker build --push -t $FULL_IMAGE_NAME --build-arg="FONDANT_VERSION=main" --no-cache .
