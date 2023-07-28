@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # initialize pipeline
 commoncrawl_pipeline = Pipeline(
     pipeline_name="commoncrawl_pipeline",
-    base_path="/Users/sharongrundmann/Projects/forum-work/fondant/fondant_artifacts",
+    base_path="/Users/sharongrundmann/Projects/fondant/fondant_artifacts",
     pipeline_description="A pipeline for downloading Common crawl files.",
 )
 
