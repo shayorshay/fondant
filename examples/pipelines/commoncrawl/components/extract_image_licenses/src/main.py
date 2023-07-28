@@ -59,6 +59,7 @@ class ExtractImageLicenses(PandasTransformComponent):
         Returns:
             A pandas dataframe with the image url and license metadata.
         """
+        logger.info(f"Extracting images from {len(dataframe)} webpages")
         dataframe = (
             dataframe.apply(
                 lambda row: get_image_info_from_webpage(

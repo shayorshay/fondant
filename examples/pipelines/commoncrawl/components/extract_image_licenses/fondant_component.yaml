@@ -1,7 +1,7 @@
 name: Extract image url and license from commoncrawl
 description: Component that extracts image url and license metadata from a dataframe of webpage urls and html codes
 # image: ghcr.io/ml6team/extract_image_licenses:latest
-image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/extract_image_licenses:dev
+image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/extract_image_licenses:latest
 
 consumes:
   webpage:
