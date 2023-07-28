@@ -16,7 +16,7 @@
 # Set some variables
 ARTIFACT_PATH="050243278346.dkr.ecr.us-east-1.amazonaws.com"
 IMAGE_NAME="load_from_commoncrawl"
-IMAGE_TAG="dev"
+IMAGE_TAG="latest"
 
 # Create full name of the image
 FULL_IMAGE_NAME=${ARTIFACT_PATH}/${IMAGE_NAME}:${IMAGE_TAG}
