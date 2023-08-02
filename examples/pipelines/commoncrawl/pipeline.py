@@ -37,8 +37,8 @@ download_commoncrawl_segments_op = ComponentOp(
     output_partition_size="disable",
 )
 
-filter_blacklisted_urls = ComponentOp(
-    component_dir="components/filter_blacklisted_urls",
+filter_webpage_urls = ComponentOp(
+    component_dir="components/filter_webpage_urls",
     arguments={
         "categories": ["adult", "violence"],
     },
@@ -58,8 +58,6 @@ commoncrawl_pipeline.add_op(
     download_commoncrawl_segments_op, dependencies=load_from_commoncrawl_op
 )
 commoncrawl_pipeline.add_op(
-    filter_blacklisted_urls, dependencies=download_commoncrawl_segments_op
+    filter_webpage_urls, dependencies=download_commoncrawl_segments_op
 )
-commoncrawl_pipeline.add_op(
-    extract_image_licenses, dependencies=filter_blacklisted_urls
-)
+commoncrawl_pipeline.add_op(extract_image_licenses, dependencies=filter_webpage_urls)

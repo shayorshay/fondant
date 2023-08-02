@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import List, Optional
+from typing import List
 
 import dask.dataframe as dd
 from urllib.parse import urlparse
@@ -35,7 +35,6 @@ class FilterWebpageUrls(DaskTransformComponent):
 
         download_tar_file(BLACKLIST_URL, BLACKLIST_DIR)
         blacklisted_domains = get_blacklisted_domains(BLACKLIST_DIR, self.categories)
-        logger.info("Length of blacklisted domains: %s", len(blacklisted_domains))
 
         dataframe["webpage_base_url"] = dataframe["webpage_url"].apply(
             lambda x: urlparse(x).netloc, meta=("webpage_url", "object")
