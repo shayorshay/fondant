@@ -30,8 +30,17 @@ load_from_commoncrawl_op = ComponentOp(
 download_commoncrawl_segments_op = ComponentOp(
     component_dir="components/download_commoncrawl_segments",
     arguments={
-        "n_records_to_download": 100,
+        "n_records_to_download": 10,
         # "get_plain_text": True,
+    },
+    input_partition_rows="disable",
+    output_partition_size="disable",
+)
+
+filter_webpage_urls_op = ComponentOp(
+    component_dir="components/filter_webpage_urls",
+    arguments={
+        "categories": ["adult", "violence"],
     },
     input_partition_rows="disable",
     output_partition_size="disable",
@@ -47,6 +56,9 @@ extract_image_licenses = ComponentOp(
 commoncrawl_pipeline.add_op(load_from_commoncrawl_op)
 commoncrawl_pipeline.add_op(
     download_commoncrawl_segments_op, dependencies=load_from_commoncrawl_op
+)
+commoncrawl_pipeline.add_op(
+    filter_webpage_urls_op, dependencies=download_commoncrawl_segments_op
 )
 commoncrawl_pipeline.add_op(
     extract_image_licenses, dependencies=download_commoncrawl_segments_op
