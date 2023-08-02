@@ -26,7 +26,7 @@ def get_blacklisted_domains(blacklist_dir: str, categories: List[str]) -> List[s
     return result
 
 
-class FilterBlacklistedUrls(DaskTransformComponent):
+class FilterWebpageUrls(DaskTransformComponent):
     def __init__(self, *_, categories: List[str] = None):
         self.categories = categories
 
@@ -52,4 +52,4 @@ class FilterBlacklistedUrls(DaskTransformComponent):
 
 if __name__ == "__main__":
     executor = DaskTransformExecutor.from_args()
-    executor.execute(FilterBlacklistedUrls)
+    executor.execute(FilterWebpageUrls)
