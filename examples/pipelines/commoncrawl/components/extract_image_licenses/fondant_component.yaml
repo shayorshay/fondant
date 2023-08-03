@@ -24,3 +24,9 @@ produces:
         type: string
       license_location:
         type: string
+
+args:
+  deduplicate: 
+    description: Whether to deduplicat the result by image url. Default is True
+    type: bool
+    default: 'True'

@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 from bs4 import BeautifulSoup
-from typing import List
+from typing import List, Optional
 
 from fondant.component import PandasTransformComponent
 from fondant.executor import PandasTransformExecutor
@@ -49,8 +49,8 @@ def get_image_info_from_webpage(webpage_url: str, webpage_html: str) -> List[str
 
 
 class ExtractImageLicenses(PandasTransformComponent):
-    def __init__(self, *args):
-        pass
+    def __init__(self, *_, deduplicate: Optional[bool] = True):
+        self.deduplicate = deduplicate
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         """Extracts image url and license from the HTML content.
@@ -81,6 +81,11 @@ class ExtractImageLicenses(PandasTransformComponent):
             ("image", "license_type"),
             ("image", "license_location"),
         ]
+
+        if self.deduplicate:
+            dataframe = dataframe.drop_duplicates(
+                subset=[("image", "image_url")], keep="first"
+            )
 
         logger.info(f"Extracted {len(dataframe)} images")
 
