@@ -60,36 +60,34 @@ class ExtractImageLicenses(PandasTransformComponent):
             A pandas dataframe with the image url and license metadata.
         """
         logger.info(f"Extracting images from {len(dataframe)} webpages")
-        dataframe = (
-            dataframe.apply(
-                lambda row: get_image_info_from_webpage(
-                    row[("webpage", "url")], row[("webpage", "html")]
-                ),
-                axis=1,
-                result_type="expand",
-            )
-            .explode(0)
-            .apply(pd.Series)
+
+        images = dataframe.apply(
+            lambda row: get_image_info_from_webpage(
+                row[("webpage", "url")], row[("webpage", "html")]
+            ),
+            axis=1,
+        )
+        images = images.dropna()
+        images = [item for sublist in images for item in sublist]
+
+        images_df = pd.DataFrame(
+            images,
+            columns=[
+                ("image", "image_url"),
+                ("image", "alt_text"),
+                ("image", "webpage_url"),
+                ("image", "license_type"),
+                ("image", "license_location"),
+            ],
         )
 
-        dataframe = dataframe.dropna()
-
-        dataframe.columns = [
-            ("image", "image_url"),
-            ("image", "alt_text"),
-            ("image", "webpage_url"),
-            ("image", "license_type"),
-            ("image", "license_location"),
-        ]
-
-        if self.deduplicate:
-            dataframe = dataframe.drop_duplicates(
+        if not images_df.empty and self.deduplicate:
+            images_df = images_df.drop_duplicates(
                 subset=[("image", "image_url")], keep="first"
             )
 
         logger.info(f"Extracted {len(dataframe)} images")
-
-        return dataframe
+        return images_df
 
 
 if __name__ == "__main__":
