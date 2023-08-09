@@ -28,29 +28,23 @@ load_from_commoncrawl_op = ComponentOp(
         "n_segments_to_load": 1,
         # "offset": 3
     },
-    # node_pool_label="role",
-    # node_pool_name="m6a-workers",
     output_partition_size="disable",
 )
 
 download_commoncrawl_segments_op = ComponentOp(
     component_dir="components/download_commoncrawl_segments",
     arguments={
-        "n_records_to_download": 10000,
+        # "n_records_to_download": 10000,
         "use_s3": True,
     },
-    # node_pool_label="role",
-    # node_pool_name="m6a-workers",
     input_partition_rows="disable",
-    output_partition_size="disable",
 )
 
 extract_image_licenses = ComponentOp(
     component_dir="components/extract_image_licenses",
-    # node_pool_label="role",
-    # node_pool_name="m6a-workers",
-    input_partition_rows="disable",
-    output_partition_size="disable",
+    arguments={
+        "deduplicate": True,
+    },
 )
 
 # add ops to pipeline
