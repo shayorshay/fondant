@@ -23,8 +23,9 @@ def get_warc_file_using_boto3(s3_key: str) -> bytes:
     Returns:
         The WARC file as a bytes object.
     """
-    s3 = boto3.client("s3")
-    response = s3.get_object(Bucket=S3_COMMONCRAWL_BUCKET, Key=s3_key)
+    session = boto3.session.Session()
+    s3_client = session.client("s3")
+    response = s3_client.get_object(Bucket=S3_COMMONCRAWL_BUCKET, Key=s3_key)
     return response["Body"]
 
 
