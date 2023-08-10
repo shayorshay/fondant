@@ -3,8 +3,6 @@ import html_text
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = "https://data.commoncrawl.org/"
-
 
 def convert_to_plain_text(html: str) -> str:
     try:
