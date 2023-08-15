@@ -7,7 +7,7 @@ sys.path.append("../")
 
 from fondant.pipeline import ComponentOp, Pipeline, Client
 
-from remote_pipeline_configs import PipelineConfigs
+from aws_pipeline_configs import PipelineConfigs
 
 logger = logging.getLogger(__name__)
 
