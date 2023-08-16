@@ -12,12 +12,8 @@ except ImportError:
 
 from fondant.component_spec import ComponentSpec
 from fondant.exceptions import InvalidPipelineDefinition
-from fondant.import_utils import is_kfp_available
 from fondant.manifest import Manifest
-from fondant.schema import validate_partition_number, validate_partition_size
-
-if is_kfp_available():
-    from kubernetes import client as k8s_client
+from fondant.schema import validate_partition_number
 
 logger = logging.getLogger(__name__)
 
@@ -32,22 +28,15 @@ class ComponentOp:
         arguments: A dictionary containing the argument name and value for the operation.
         input_partition_rows: The number of rows to load per partition. Set to override the
         automatic partitioning
-        output_partition_size: the size of the output written dataset. Defaults to 250MB,
-        set to "disable" to disable automatic repartitioning of the output,
         number_of_gpus: The number of gpus to assign to the operation
         node_pool_label: The label of the node pool to which the operation will be assigned.
         node_pool_name: The name of the node pool to which the operation will be assigned.
-        p_volumes: Collection of persistent volumes in a Kubernetes cluster. Keys are mount paths,
-         values are Kubernetes volumes or inherited types(e.g. PipelineVolumes).
-        ephemeral_storage_size: Used ephemeral-storage size (minimum) for the operation.
-         Defined by string which can be a number or a number followed by one of “E”, “P”, “T”, “G”,
-         “M”, “K”. (e.g. 2T for 2 Terabytes)
 
     Note:
         - A Fondant Component operation is created by defining a Fondant Component and its input
           arguments.
-        - The `number_of_gpus`, `node_pool_label`, `node_pool_name`,`p_volumes` and
-          `ephemeral_storage_size` attributes are optional and can be used to specify additional
+        - The `number_of_gpus`, `node_pool_label`, `node_pool_name`
+         attributes are optional and can be used to specify additional
           configurations for the operation. More information on the optional attributes that can
           be assigned to kfp components here:
           https://kubeflow-pipelines.readthedocs.io/en/1.8.13/source/kfp.dsl.html
@@ -61,16 +50,12 @@ class ComponentOp:
         *,
         arguments: t.Optional[t.Dict[str, t.Any]] = None,
         input_partition_rows: t.Optional[t.Union[str, int]] = None,
-        output_partition_size: t.Optional[str] = None,
         number_of_gpus: t.Optional[int] = None,
         node_pool_label: t.Optional[str] = None,
         node_pool_name: t.Optional[str] = None,
-        p_volumes: t.Optional[t.Dict[str, k8s_client.V1Volume]] = None,
-        ephemeral_storage_size: t.Optional[str] = None,
     ) -> None:
         self.component_dir = Path(component_dir)
         self.input_partition_rows = input_partition_rows
-        self.output_partitioning_size = output_partition_size
         self.arguments = self._set_arguments(arguments)
 
         self.component_spec = ComponentSpec.from_file(
@@ -83,8 +68,6 @@ class ComponentOp:
             node_pool_label,
             node_pool_name,
         )
-        self.p_volumes = p_volumes
-        self.ephemeral_storage_size = ephemeral_storage_size
 
     def _set_arguments(
         self,
@@ -96,10 +79,8 @@ class ComponentOp:
         arguments = arguments or {}
 
         input_partition_rows = validate_partition_number(self.input_partition_rows)
-        output_partition_size = validate_partition_size(self.output_partitioning_size)
 
         arguments["input_partition_rows"] = str(input_partition_rows)
-        arguments["output_partition_size"] = str(output_partition_size)
 
         return arguments
 
@@ -128,12 +109,9 @@ class ComponentOp:
         *,
         arguments: t.Optional[t.Dict[str, t.Any]] = None,
         input_partition_rows: t.Optional[t.Union[int, str]] = None,
-        output_partition_size: t.Optional[str] = None,
         number_of_gpus: t.Optional[int] = None,
         node_pool_label: t.Optional[str] = None,
         node_pool_name: t.Optional[str] = None,
-        p_volumes: t.Optional[t.Dict[str, k8s_client.V1Volume]] = None,
-        ephemeral_storage_size: t.Optional[str] = None,
     ) -> "ComponentOp":
         """Load a reusable component by its name.
 
@@ -142,16 +120,9 @@ class ComponentOp:
             arguments: A dictionary containing the argument name and value for the operation.
             input_partition_rows: The number of rows to load per partition. Set to override the
             automatic partitioning
-            output_partition_size: the size of the output written dataset. Defaults to 250MB,
-            set to "disable" to disable automatic repartitioning of the output,
             number_of_gpus: The number of gpus to assign to the operation
             node_pool_label: The label of the node pool to which the operation will be assigned.
             node_pool_name: The name of the node pool to which the operation will be assigned.
-            p_volumes: Collection of persistent volumes in a Kubernetes cluster. Keys are mount
-                paths, values are Kubernetes volumes or inherited types(e.g. PipelineVolumes).
-            ephemeral_storage_size: Used ephemeral-storage request (minimum) for the operation.
-                Defined by string which can be a number or a number followed by one of “E”, “P”,
-                “T”, “G”, “M”, “K”. (e.g. 2T for 2 Terabytes)
         """
         components_dir: Path = t.cast(Path, files("fondant") / f"components/{name}")
 
@@ -163,12 +134,9 @@ class ComponentOp:
             components_dir,
             arguments=arguments,
             input_partition_rows=input_partition_rows,
-            output_partition_size=output_partition_size,
             number_of_gpus=number_of_gpus,
             node_pool_label=node_pool_label,
             node_pool_name=node_pool_name,
-            p_volumes=p_volumes,
-            ephemeral_storage_size=ephemeral_storage_size,
         )
 
 
