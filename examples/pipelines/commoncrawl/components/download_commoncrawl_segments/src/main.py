@@ -135,6 +135,7 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
                     self.n_records_to_download,
                     self.retries,
                     self.backoff_factor,
+                    self.s3_client,
                 ),
                 axis=1,
                 meta=("object"),
