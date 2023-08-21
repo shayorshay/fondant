@@ -86,7 +86,7 @@ class ExtractImageLicenses(PandasTransformComponent):
                 subset=[("image", "image_url")], keep="first"
             )
 
-        logger.info(f"Extracted {len(dataframe)} images")
+        logger.info(f"Extracted {len(images_df)} images")
         return images_df
 
 
