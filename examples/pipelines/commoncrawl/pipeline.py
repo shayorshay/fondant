@@ -24,17 +24,15 @@ load_from_commoncrawl_op = ComponentOp(
         "n_segments_to_load": 1,
         # "offset": 3,
     },
-    output_partition_size="disable",
+    input_partition_rows="disable",
 )
 
 download_commoncrawl_segments_op = ComponentOp(
     component_dir="components/download_commoncrawl_segments",
     arguments={
         "n_records_to_download": 100,
-        # "get_plain_text": True,
     },
     input_partition_rows="disable",
-    output_partition_size="disable",
 )
 
 filter_webpage_urls = ComponentOp(
@@ -43,13 +41,11 @@ filter_webpage_urls = ComponentOp(
         "categories": ["adult", "violence"],
     },
     input_partition_rows="disable",
-    output_partition_size="disable",
 )
 
 extract_image_licenses = ComponentOp(
     component_dir="components/extract_image_licenses",
     input_partition_rows="disable",
-    output_partition_size="disable",
 )
 
 # add ops to pipeline

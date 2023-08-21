@@ -26,6 +26,8 @@ load_from_commoncrawl_op = ComponentOp(
     arguments={
         "index_name": "CC-MAIN-2023-14",
         "n_segments_to_load": 1,
+        "aws_access_key_id": PipelineConfigs.AWS_ACCESS_KEY_ID,
+        "aws_secret_access_key": PipelineConfigs.AWS_SECRET_ACCESS_KEY,
     },
     input_partition_rows="disable",
 )
@@ -35,6 +37,8 @@ download_commoncrawl_segments_op = ComponentOp(
     arguments={
         "n_records_to_download": 100,
         "use_s3": True,
+        "aws_access_key_id": PipelineConfigs.AWS_ACCESS_KEY_ID,
+        "aws_secret_access_key": PipelineConfigs.AWS_SECRET_ACCESS_KEY,
     },
     input_partition_rows="disable",
 )
