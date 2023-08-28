@@ -1,6 +1,7 @@
 name: Download commoncrawl segment files
 description: Component that downloads commoncrawl segment files based on WARC paths
-image: ghcr.io/ml6team/download_commoncrawl_segments:latest
+# image: ghcr.io/ml6team/download_commoncrawl_segments:latest
+image: europe-west4-docker.pkg.dev/soy-audio-379412/soy-audio-379412-default-repository/kubeflow-components/components/download_commoncrawl_segments:latest
 
 consumes:
   segment:
@@ -13,7 +14,7 @@ produces:
     fields:
       url:
         type: string
-      html:
+      content:
         type: string
 
 args:

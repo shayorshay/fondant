@@ -146,7 +146,7 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
 
         dataframe.columns = [
             "webpage_url",
-            "webpage_html",
+            "webpage_content",
         ]
 
         dataframe = dataframe.reset_index(drop=True)

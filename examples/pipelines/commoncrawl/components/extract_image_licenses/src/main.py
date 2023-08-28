@@ -63,7 +63,7 @@ class ExtractImageLicenses(PandasTransformComponent):
 
         images = dataframe.apply(
             lambda row: get_image_info_from_webpage(
-                row[("webpage", "url")], row[("webpage", "html")]
+                row[("webpage", "url")], row[("webpage", "content")]
             ),
             axis=1,
         )

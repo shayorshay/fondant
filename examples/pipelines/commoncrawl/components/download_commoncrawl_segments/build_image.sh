@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Set some variables
-ARTIFACT_PATH="050243278346.dkr.ecr.us-east-1.amazonaws.com"
+ARTIFACT_PATH="europe-west4-docker.pkg.dev/soy-audio-379412/soy-audio-379412-default-repository/kubeflow-components/components"
 IMAGE_NAME="download_commoncrawl_segments"
 IMAGE_TAG="latest"
 
