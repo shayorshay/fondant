@@ -67,4 +67,4 @@ if __name__ == "__main__":
     runner = KubeflowRunner(
         host=PipelineConfigs.HOST,
     )
-    runner.run(input_spec="pipeline.yaml", experiment_name="test_kfp_runner")
+    runner.run(input_spec="pipeline.yaml", experiment_name="commoncrawl")
