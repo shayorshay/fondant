@@ -1,0 +1,21 @@
+name: extract image metadata component
+description: A component that extracts the image metadata from the image url
+image: ghcr.io/ml6team/common_crawl_extract_image_metadata:latest
+
+consumes:
+  image:
+    fields:
+      image_url:
+        type: string
+
+produces:
+  image:
+    fields:
+      image_url:
+        type: string
+      image_width:
+        type: int32
+      image_height:
+        type: int32
+      image_format:
+        type: string

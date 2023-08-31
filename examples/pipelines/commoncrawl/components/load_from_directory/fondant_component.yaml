@@ -1,0 +1,26 @@
+name: Load from directory component
+description: A component that loads the data from a directory
+image: ghcr.io/ml6team/load_from_directory:latest
+
+produces:
+  image:
+    fields:
+      image_url:
+        type: string
+      alt_text:
+        type: string
+      webpage_url:
+        type: string
+      license_type:
+        type: string
+      license_location:
+        type: string
+
+args:
+  directory_name:
+    description: The name of the directory to load the data from
+    type: str
+  project_id:
+    description: The name of the project to load the data from
+    type: str
+    default: None
