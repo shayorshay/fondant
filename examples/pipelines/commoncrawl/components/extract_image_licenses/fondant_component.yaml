@@ -1,0 +1,33 @@
+name: Extract image url and license from commoncrawl
+description: Component that extracts image url and license metadata from a dataframe of webpage urls and html codes
+# image: ghcr.io/ml6team/extract_image_licenses:latest
+# image: europe-west4-docker.pkg.dev/soy-audio-379412/soy-audio-379412-default-repository/kubeflow-components/components/extract_image_licenses:latest
+image: 050243278346.dkr.ecr.us-east-1.amazonaws.com/extract_image_licenses:laion
+
+consumes:
+  webpage:
+    fields:
+      url:
+        type: string
+      content:
+        type: string
+
+produces:
+  image:
+    fields:
+      image_url:
+        type: string
+      alt_text:
+        type: string
+      webpage_url:
+        type: string
+      license_type:
+        type: string
+      license_location:
+        type: string
+
+args:
+  deduplicate: 
+    description: Whether to deduplicat the result by image url. Default is True
+    type: bool
+    default: 'True'
