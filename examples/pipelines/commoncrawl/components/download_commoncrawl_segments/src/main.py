@@ -156,12 +156,17 @@ class DownloadCommoncrawlSegments(DaskTransformComponent):
 
         dataframe = dataframe.reset_index(drop=True)
 
-        # get unique image count from webpages
-        get_image_count_from_webpage = lambda row: len(
-            set(BeautifulSoup(row["webpage_content"], "html.parser").find_all("img"))
-        )
-        dataframe["webpage_imgcount"] = dataframe.apply(
-            get_image_count_from_webpage, axis=1, meta=("int")
+        def get_image_count_from_webpage(webpage_content):
+            try:
+                soup = BeautifulSoup(webpage_content, "html.parser")
+                images = soup.find_all("img")
+                return len(set(images))
+            except Exception as e:
+                logger.error(f"Error parsing HTML: {e}")
+                return None
+
+        dataframe["webpage_imgcount"] = dataframe["webpage_content"].apply(
+            get_image_count_from_webpage, meta=("int")
         )
 
         logger.info(dataframe.head())

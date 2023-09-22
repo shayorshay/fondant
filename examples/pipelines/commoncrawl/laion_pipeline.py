@@ -33,6 +33,9 @@ download_from_commonwarc_op = ComponentOp(
 
 extract_images_from_warc_op = ComponentOp(
     component_dir="components/extract_image_licenses",
+    arguments={
+        "deduplicate": "True",
+    },
     cache=False,
 )
 
